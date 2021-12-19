@@ -1534,9 +1534,8 @@ void TextEditor::InsertText(const char *aValue)
 
 void TextEditor::AppendTextAtEnd(const char *aText)
 {
-    auto where     = Coordinates((int)mLines.size() - 1, GetLineMaxColumn(mLines.size() - 1));
-    auto numInsert = InsertTextAt(where, aText);
-    Colorize(where.mLine - 1, numInsert + 2);
+    auto where = Coordinates((int)mLines.size() - 1, GetLineMaxColumn(mLines.size() - 1));
+    InsertTextAt(where, aText);
 }
 
 void TextEditor::DeleteSelection()
@@ -2521,6 +2520,11 @@ int TextEditor::GetPageSize() const
 {
     auto height = ImGui::GetWindowHeight() - 20.0f;
     return (int)floor(height / mCharAdvance.y);
+}
+
+void TextEditor::ForceColorize(int aLineBegin, int aCount)
+{
+    Colorize(aLineBegin, aCount);
 }
 
 TextEditor::UndoRecord::UndoRecord(const std::string &aAdded,

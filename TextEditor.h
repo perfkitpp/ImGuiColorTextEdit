@@ -253,6 +253,8 @@ class TextEditor
     void InsertText(const char *aValue);
     void AppendTextAtEnd(char const *aText);
 
+    void ForceColorize(int aLineBegin, int aCount = -1);
+
     void MoveUp(int aAmount = 1, bool aSelect = false);
     void MoveDown(int aAmount = 1, bool aSelect = false);
     void MoveLeft(int aAmount = 1, bool aSelect = false, bool aWordMode = false);
