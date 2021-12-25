@@ -1996,7 +1996,13 @@ void TextEditor::BackspaceWord()
     {
         for (; cursor != end; --cursor, --where)
         {
-            if (not(cursor->mChar == ' ' || isAlphaNumeric(cursor->mChar)))
+            if (not(cursor->mChar == ' '))
+                break;
+        }
+
+        for (; cursor != end; --cursor, --where)
+        {
+            if (not isAlphaNumeric(cursor->mChar))
                 break;
         }
     }
