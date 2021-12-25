@@ -1957,26 +1957,33 @@ void TextEditor::Backspace()
 
 void TextEditor::BackspaceWord()
 {
+    if (mLines.empty())
+        return;
+
     if (HasSelection())
     {
         Backspace();
         return;
     }
 
-    auto *line = &mLines.at(mState.mCursorPosition.mLine);
+    UndoRecord u;
+    u.mBefore = mState;
 
-    if (mState.mCursorPosition.mColumn == 0)
+    auto pos = GetActualCursorCoordinates();
+    SetCursorPosition(pos);
+
+    auto *line  = &mLines.at(pos.mLine);
+    auto column = std::min<int>(line->size(), pos.mColumn);
+
+    if (column == 0)
+    {
         Backspace();
-
-    if (line->size() < mState.mCursorPosition.mColumn)
         return;
-
-    if (mState.mCursorPosition.mColumn == 0)
-        return;
+    }
 
     auto *end    = line->data() - 1;
-    auto *cursor = &line->at(mState.mCursorPosition.mColumn - 1);
-    int where    = mState.mCursorPosition.mColumn - 1;
+    auto *cursor = &line->at(column - 1);
+    int where    = column - 1;
 
     auto isAlphaNumeric =
             [](char c) {
@@ -2017,9 +2024,12 @@ void TextEditor::BackspaceWord()
 
     SetSelection(
             Coordinates{mState.mCursorPosition.mLine, where},
-            Coordinates{mState.mCursorPosition.mLine, mState.mCursorPosition.mColumn});
+            Coordinates{mState.mCursorPosition.mLine, column});
 
     DeleteSelection();
+
+    u.mAfter = mState;
+    AddUndo(u);
 }
 
 void TextEditor::SelectWordUnderCursor()
