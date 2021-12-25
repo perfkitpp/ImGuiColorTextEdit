@@ -358,6 +358,7 @@ class TextEditor
     Line &InsertLine(int aIndex);
     void EnterCharacter(ImWchar aChar, bool aShift);
     void Backspace();
+    void BackspaceWord();
     void DeleteSelection();
     std::string GetWordUnderCursor() const;
     std::string GetWordAt(const Coordinates &aCoords) const;

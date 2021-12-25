@@ -740,6 +740,8 @@ void TextEditor::HandleKeyboardInputs()
             Delete();
         else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
             Backspace();
+        else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+            BackspaceWord();
         else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
             mOverwrite ^= true;
         else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
@@ -1951,6 +1953,73 @@ void TextEditor::Backspace()
 
     u.mAfter = mState;
     AddUndo(u);
+}
+
+void TextEditor::BackspaceWord()
+{
+    if (HasSelection())
+    {
+        Backspace();
+        return;
+    }
+
+    auto *line = &mLines.at(mState.mCursorPosition.mLine);
+
+    if (mState.mCursorPosition.mColumn == 0)
+        Backspace();
+
+    if (line->size() < mState.mCursorPosition.mColumn)
+        return;
+
+    if (mState.mCursorPosition.mColumn == 0)
+        return;
+
+    auto *end    = line->data() - 1;
+    auto *cursor = &line->at(mState.mCursorPosition.mColumn - 1);
+    int where    = mState.mCursorPosition.mColumn - 1;
+
+    auto isAlphaNumeric =
+            [](char c) {
+                return isalpha(c)
+                    || isdigit(c)
+                    || c == '_';
+            };
+
+    if (cursor->mChar == ' ')
+    {
+        for (; cursor != end; --cursor, --where)
+        {
+            if (not(cursor->mChar == ' ' || isAlphaNumeric(cursor->mChar)))
+                break;
+        }
+    }
+    else if (isAlphaNumeric(cursor->mChar))
+    {
+        for (; cursor != end; --cursor, --where)
+        {
+            if (not isAlphaNumeric(cursor->mChar))
+                break;
+        }
+    }
+    else if (cursor->mChar != ' ')
+    {
+        for (; cursor != end; --cursor, --where)
+        {
+            if (isAlphaNumeric(cursor->mChar) || cursor->mChar == ' ')
+                break;
+        }
+    }
+
+    if (where == ~size_t{})
+        where = 0;
+    else
+        where += 1;
+
+    SetSelection(
+            Coordinates{mState.mCursorPosition.mLine, where},
+            Coordinates{mState.mCursorPosition.mLine, mState.mCursorPosition.mColumn});
+
+    DeleteSelection();
 }
 
 void TextEditor::SelectWordUnderCursor()
