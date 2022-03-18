@@ -2609,9 +2609,15 @@ int TextEditor::GetPageSize() const
 
 void TextEditor::ForceColorize(int aLineBegin, int aCount)
 {
-    int toLine     = aCount == -1 ? (int)mLines.size()
-                                  : std::min((int)mLines.size(), aLineBegin + aCount);
-    mColorRangeMin = aLineBegin;
+    int toLine = aCount < 0 ? (int)mLines.size()
+                            : std::min((int)mLines.size(), aLineBegin + aCount);
+
+    mColorRangeMin = std::min(mColorRangeMin, aLineBegin);
+    if (aCount < -1)
+        mColorRangeMin = std::max(aLineBegin + aCount, mColorRangeMin);
+    else
+        mColorRangeMin = aLineBegin;
+
     mColorRangeMax = std::max(mColorRangeMax, toLine);
     mColorRangeMin = std::max(0, mColorRangeMin);
     mColorRangeMax = std::max(mColorRangeMin, mColorRangeMax);
