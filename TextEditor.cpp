@@ -2609,7 +2609,13 @@ int TextEditor::GetPageSize() const
 
 void TextEditor::ForceColorize(int aLineBegin, int aCount)
 {
-    Colorize(aLineBegin, aCount);
+    int toLine     = aCount == -1 ? (int)mLines.size()
+                                  : std::min((int)mLines.size(), aLineBegin + aCount);
+    mColorRangeMin = aLineBegin;
+    mColorRangeMax = std::max(mColorRangeMax, toLine);
+    mColorRangeMin = std::max(0, mColorRangeMin);
+    mColorRangeMax = std::max(mColorRangeMin, mColorRangeMax);
+    mCheckComments = true;
 }
 
 TextEditor::UndoRecord::UndoRecord(const std::string &aAdded,
