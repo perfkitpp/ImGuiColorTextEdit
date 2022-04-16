@@ -2450,12 +2450,13 @@ void TextEditor::ColorizeInternal()
                         else
                             withinString = false;
                     }
-                    else if (c == '\\')
-                    {
-                        currentIndex += 1;
-                        if (currentIndex < (int)line.size())
-                            line[currentIndex].mMultiLineComment = inComment;
-                    }
+                    // TODO: Fix crash here!
+                    //                    else if (c == '\\')
+                    //                    {
+                    //                        currentIndex += 1;
+                    //                        if (currentIndex < (int)line.size())
+                    //                            line[currentIndex].mMultiLineComment = inComment;
+                    //                    }
                 }
                 else
                 {
@@ -2722,14 +2723,14 @@ static bool TokenizeCStyleCharacterLiteral(const char *in_begin,
         p++;
 
         // handle escape characters
-        if (p < in_end && *p == '\\')
+        if (p < in_end && * p == '\\')
             p++;
 
         if (p < in_end)
             p++;
 
         // handle end of character literal
-        if (p < in_end && *p == '\'')
+        if (p < in_end && * p == '\'')
         {
             out_begin = in_begin;
             out_end   = p + 1;
@@ -2850,7 +2851,7 @@ static bool TokenizeCStyleNumber(const char *in_begin, const char *in_end,
         }
 
         // single precision floating point type
-        if (p < in_end && *p == 'f')
+        if (p < in_end && * p == 'f')
             p++;
     }
 
